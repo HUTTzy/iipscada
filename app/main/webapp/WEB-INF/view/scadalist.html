@@ -1,0 +1,166 @@
+<style>
+    #scadalist > div {
+        float: left;
+        height: 200px;
+        /*background: #00ff00;*/
+        padding: 20px;
+    }
+
+    #scadalist > div > div {
+        border: 1px solid #00aaee;
+        height: 100%;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 5px;
+        -webkit-box-shadow: 0px 0px 5px 2px #00aaee;
+        -moz-box-shadow: 0px 0px 53px 2px #00aaee;
+        box-shadow: 0px 0px 5px 2px #00aaee;
+        text-align: center;
+        position: relative;
+    }
+
+    #scadalist > div > div > a {
+        width: 20px;
+        height: 20px;
+        color: #000;
+        position: absolute;
+        left: 10px;
+        display: none;
+        border-radius: 10px;
+    }
+
+    #scadalist > div > div > a.cDeleteScada {
+        background-color: rgba(255, 0, 0, .5);
+        left: 10px;
+        top: 10px;
+    }
+
+    #scadalist > div > div > a:hover {
+        background-color: rgb(200, 100, 150);
+        color: #fff;
+    }
+
+    #scadalist > div > div:hover > a {
+        display: block;
+    }
+
+    #scadalist > div > div:hover {
+        transition: all 0.8s;
+        transform: scale(1.1);
+    }
+
+    #scadalist > div > div img {
+        height: 100%;
+        width: 50%;
+        float: left;
+    }
+
+    .text-desc {
+        height: 100%;
+        width: 50%;
+        float: right;
+    }
+
+    .text-desc table th {
+        background-color: transparent !important;
+        overflow: hidden;
+    }
+
+    .text-desc table {
+        border: none;
+        text-align: center;
+    }
+
+    .cChangeName {
+        border-radius: 5px;
+    }
+
+    .cChangeName:hover {
+        background: rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+<div class="authority-head">
+    <div class="manage-head">
+        <h6 class="layout padding-left manage-head-con">scada列表
+        </h6>
+    </div>
+</div>
+<div id="scadalist" class="page">
+    #if(scadalist.size()==0)
+    <h4 class="text-green-deep text-center">您还未创建过scada模板 <a href="/server" target="_blank"
+                                                             class="text-blue-deep">开始创建</a></h4>
+    #end
+    #for(scada:scadalist)
+    <div class="w20">
+        <div title="编辑" onclick="window.open('/server?filename=#(scada.name)')">
+            <a title="删除" filename="#(scada.name)" class="cDeleteScada">×</a>
+            <img src="Images/logo.png">
+            <div class="text-desc">
+                <table class="table" height="100%">
+                    <tr>
+                        <th filename="#(scada.name)" class="cChangeName" style="color: #f30000;font-size: 18px">
+                            #(scada.name)
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="color: #3c8b3c;">#(scada.size)</th>
+                    </tr>
+                    <tr>
+                        <th style="color: #e28839;">#(scada.time)</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    #end
+</div>
+
+<script>
+    ;(function () {
+        $(".cDeleteScada").click((e) = > {
+            e.stopPropagation();
+        let filename = $(e.target).attr("filename");
+        $.dialog('confirm', '提示', '确认要删除【<font color="red">' + filename + '</font>】吗?', 0, function () {
+            $.post("/server/deletescada", {filename: filename}, function (e) {
+                    if (e == true) {
+                        $.tooltip('删除成功', 2000, true, function () {
+                        });
+                        changePage("/server/scadalist");
+                    } else {
+                        $.tooltip('删除失败');
+                    }
+                }, 'json'
+            ).error(function (e) {
+                $.tooltip('删除失败:' + e);
+            });
+            $.closeDialog();
+        });
+    })
+        ;
+
+        $(".cChangeName").click((e) = > {
+            e.stopPropagation();
+        let filename = $(e.target).attr("filename");
+        let newfilename = prompt("请输入新的模板名称", filename);
+        if (!newfilename) {
+            return;
+        }
+        if (newfilename == "") {
+            $.tooltip('请输入正确的模板名!');
+            return;
+        }
+
+        $.post("/server/updatefilename", {filename: filename, newfilename: newfilename}, function (e) {
+                if (e == true) {
+                    $.tooltip('修改成功', 2000, true, function () {
+                    });
+                    changePage("/server/scadalist");
+                } else {
+                    $.tooltip('该名称已存在，请重新修改!');
+                }
+            }, 'json'
+        );
+
+    })
+    })();
+</script>

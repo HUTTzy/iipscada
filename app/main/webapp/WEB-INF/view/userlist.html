@@ -1,0 +1,254 @@
+<div class="authority" style="background: #FFFFFF;padding-bottom: 20px">
+    <div class="authority-head">
+        <div class="manage-head">
+            <h6 class="layout padding-left manage-head-con">用户管理
+                <span class="fr text-small text-normal">
+                    <button onclick="toggleEdit('add')" class="adminedit button btn-red text-white btn-small"><i
+                            class="icon ico-left"></i>添加用户</button>
+                </span>
+            </h6>
+        </div>
+    </div>
+    <div class="authority-content">
+        <div class="list-content show">
+            <div class="offcial-table tr-border margin-big-top clearfix">
+                <div class="tr-th clearfix">
+                    <div class="th w10">
+                        状态
+                    </div>
+                    <div class="th w15">
+                        昵称
+                    </div>
+                    <div class="th w10">
+                        登录名
+                    </div>
+                    <div class="th w15">
+                        邮箱
+                    </div>
+                    <div class="th w15">
+                        手机号
+                    </div>
+                    <div class="th w10">
+                        角色
+                    </div>
+                    <div class="th w10">
+                        初始密码
+                    </div>
+                    <div class="th w15">
+                        操作
+                    </div>
+                </div>
+                #for(u:users)
+                <div class="tr clearfix border-bottom-none">
+                    <div class="td w10">
+                        #if(u.stat==1)
+                        <span class="text-green-deep">正常</span>
+                        #else
+                        <span class="text-red-deep">锁定中</span>
+                        #end
+                    </div>
+                    <div class="td w15">
+                        #(u.nick_name)
+                    </div>
+                    <div class="td w10">
+                        #(u.login_name)
+                    </div>
+                    <div class="td w15">
+                        #(u.email)
+                    </div>
+                    <div class="td w15">
+                        #(u.mobile)
+                    </div>
+                    <div class="td w10">
+                        #(u.rname)
+                    </div>
+                    <div class="td w10">
+                        #(u.initpwd)
+                    </div>
+                    <div class="td w15">
+                        #if(user.id!=u.id)
+                        <a href="#" onclick="lockUser('#(u.id)','#(u.stat)')" class="button-word2">
+                            #if(u.stat==1)
+                            锁定
+                            #else
+                            解锁
+                            #end
+                        </a> |
+                        <a style="text-decoration: none" href="#" onclick="toggleEdit('update','#(u.id)')"
+                           class="adminedit button-word2">修改</a> |
+                        <a href="#" class="button-word2" onclick="delUser('#(u.id)')">删除</a>
+                        #end
+
+                    </div>
+                </div>
+                #end
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    #admineditBox {
+        padding: 0 !important;
+        color: #2d2d2d;
+        text-decoration: none !important;
+    }
+</style>
+<div id="admineditBox" style="display: none;">
+    <form id="admineditform" onsubmit="return false">
+        <table class="table table-bordered table-hover">
+            <tr>
+                <th style="width: 80px">登录名</th>
+                <td><input name="login_name" class="input input-small" type="text"/></td>
+            </tr>
+            <tr>
+                <th>昵称</th>
+                <td><input name="nick_name" class="input input-small" type="text"/></td>
+            </tr>
+            <tr>
+                <th>邮箱</th>
+                <td><input name="email" class="input input-small" type="text"/></td>
+            </tr>
+            <tr>
+                <th>电话</th>
+                <td><input name="mobile" class="input input-small" type="text"/></td>
+            </tr>
+            <tr>
+                <th>角色</th>
+                <td>
+                    <select class="input-small input" name="rid">
+                        <option value="4">普通用户</option>
+                        <option value="2">vip用户</option>
+                        <option value="3">超级vip</option>
+                        <option value="1">管理员</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="button" id="saveBtn" onclick="toggleUser()"
+                            class="button submitBtn button-full btn-orange text-white">保存
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+<script>
+    ;(function () {
+        let users = `#for(u:users){"id":"#(u.id)","stat":"#(u.stat)","login_name":"#(u.login_name)","nick_name":"#(u.nick_name)","email":"#(u.email)","mobile":"#(u.mobile)"},#end`;
+        let admineditform = $("#admineditform");
+        let editType = "add";
+        let editId = 0;
+        users = users.substring(0, users.length - 1);
+        users = JSON.parse("[" + users + "]");
+        let findById = (id) => {
+            for (usr of users) {
+                if (usr["id"] == id) {
+                    return usr;
+                }
+            }
+            return {};
+        };
+
+        let loadToForm = (usr) => {
+            admineditform.find("input[name='login_name']").val(usr["login_name"]);
+            admineditform.find("input[name='nick_name']").val(usr["nick_name"]);
+            admineditform.find("input[name='email']").val(usr["email"]);
+            admineditform.find("input[name='mobile']").val(usr["mobile"]);
+            admineditform.find("select[name='rid']").val(usr["rid"]);
+        };
+
+        let clearForm = () => {
+            admineditform.find("input[name='login_name']").val("");
+            admineditform.find("input[name='nick_name']").val("");
+            admineditform.find("input[name='email']").val("");
+            admineditform.find("input[name='mobile']").val("");
+            admineditform.find("select[name='rid']").val("");
+        }
+
+
+        let $el = $('.adminedit');
+        $el.hDialog({resetForm: false, box: "#admineditBox", title: '用户信息', height: 400});
+        window.toggleEdit = (type, id) => {
+            editType = type;
+            if (type == "add") {
+                editId = 0;
+                $("#saveBtn").html("添加用户");
+                clearForm();
+            } else {
+                let usr = findById(id);
+                editId = id;
+                loadToForm(usr);
+                $("#saveBtn").html("保存用户");
+            }
+        }
+
+        $("#saveBtn").click(() => {
+            let d = {};
+            let EmailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/; //邮件正则
+            let PhoneReg = /^1[34578]\d{9}$/; //手机正则
+            let t = admineditform.serializeArray();
+            $.each(t, function () {
+                d[this.name] = this.value;
+            });
+            if (d["nick_name"] === '') {
+                $.tooltip('昵称还没填呢...');
+            } else if (d["login_name"] === '') {
+                $.tooltip('登录账号还没填呢...');
+            } else if (d["mobile"] === '') {
+                $.tooltip('手机还没填呢...');
+            } else if (!PhoneReg.test(d["mobile"])) {
+                console.log(d["mobile"])
+                $.tooltip('手机格式错误...');
+            } else if (d["email"] === '') {
+                $.tooltip('邮箱还没填哦...');
+            } else if (!EmailReg.test(d["email"])) {
+                $.tooltip('邮箱格式错误...');
+            } else {
+                d["id"] = editId;
+                $.post("/admin/toggleuser", d, function (e) {
+                        changePage('/admin/userlist');
+                        if (e == true) {
+                            $.tooltip('操作成功～', 2000, true, function () {
+                            });
+                        }
+                    }, 'json'
+                );
+                $("#admineditBox").hide();
+                /**放到最后**/
+                $el.hDialog('close', {box: '#admineditBox'});
+            }
+        })
+
+        window.delUser = (uid) => {
+            /**删除用户**/
+            $.dialog('confirm', '提示', '确认要删除这个用户吗?', 0, function () {
+                $.post("/admin/deleteuser", {id: uid}, function (e) {
+                        changePage('/admin/userlist');
+                        if (e == true) {
+                            $.tooltip('删除成功～', 2000, true, function () {
+                            });
+                        }
+                    }, 'json'
+                );
+                $.closeDialog();
+            });
+        };
+
+        window.lockUser = (uid, stat) => {
+            /**锁定用户**/
+            let reStat = stat ^ 1;
+            $.post("/admin/saveuser", {id: uid, stat: reStat}, function (e) {
+                    changePage('/admin/userlist');
+                    if (e == true) {
+                        $.tooltip('操作成功～', 2000, true, function () {
+                        });
+                    }
+                }, 'json'
+            );
+        }
+
+    })();
+</script>

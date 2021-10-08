@@ -1,0 +1,144 @@
+<div class="account-info clearfix">
+    <div class="text-box-main min-width-300 fl">
+        <dl>
+            <dt class="padding-big-left lists-border-list clearfix">
+                <div class="title fl padding-big-top padding-big-bottom">
+                    <p>HI,#(user.nick_name) <a href="#" class="openedit text-blue-deep">修改个人信息</a></p>
+                </div>
+                <span class="fr icon-head">
+										<img src="Images/noavatar_middle.gif" alt="账户头像">
+									</span>
+            </dt>
+            <dd class="padding-big clearfix">
+                <p class="w50 fl">
+                    <i class="fl icon icon-mobile"></i>
+
+                    <span class="fl margin-left">手机：#(user.mobile)</span>
+                </p>
+                <p class="w50 fl">
+                    <i class="fl icon icon-email"></i>
+
+                    <span class="fl margin-left">邮箱：#(user.email)</span>
+                </p>
+            </dd>
+        </dl>
+    </div>
+    <div class="text-box-main min-width-360 fl">
+        <dl>
+            <dt class="padding-big lists-border-list clearfix">
+                <div class="fl w50 title">
+                    <p>我的角色</p>
+                    <p class="margin-small-top clearfix">
+                        <span class="fl"><em class="h3 text-red-deep">#(user.rname) </em></span>
+                        <a class="fl margin-left button btn-red text-white" href="#">详情</a>
+                    </p>
+                </div>
+                <div class="fl w50 padding-left title">
+                    <p>能创建的最大模板数量</p>
+                    <p class="margin-small-top clearfix">
+                        <span class="fl"><em class="h3 text-blue-deep">#(user.maxscada) </em>个</span>
+                        <a class="fl margin-left button btn-red text-white" target="view_window" href="#">详情</a>
+                    </p>
+                </div>
+            </dt>
+            <dd class="padding-big">
+                <div class="fl w50 title">
+                    <h4>scada交流群：</h4>
+                </div>
+                <div class="fl w50 padding-left title">
+                    <p class="text-sliver text-default margin-small-top">
+                        <em class="h3 text-golden margin-big-right">q群：</em>222222
+                    </p>
+                </div>
+            </dd>
+        </dl>
+    </div>
+    <div class="text-box-main min-width-300 fl margin-right-none">
+        <dl>
+            <dt class="padding-big lists-border-list clearfix">
+                <div class="fl title">
+                    <p>scada交流群：</p>
+                    <p class="text-sliver text-default margin-small-top">
+                        <em class="h3 text-golden margin-big-right">q群：</em>222222
+                    </p>
+                </div>
+            </dt>
+            <dd class="padding-big">
+                <div class="account-class text-hidden">
+                    <p>您好，我是您的交流群：，在使用中有任何问题，欢迎随时联系！</p>
+                </div>
+            </dd>
+        </dl>
+    </div>
+</div>
+<!-- 注意：请将要放入弹框的内容放在比如id="HBox"的容器中，然后将box的值换成该ID即可，比如：$(element).hDialog({'box':'#HBox'}); -->
+<div id="autoShow" style="display: none;">
+    <form id="userinfoform" onsubmit="return false">
+        <table class="table table-bordered table-hover">
+            <tr>
+                <th style="width: 80px">登录名</th>
+                <td><input disabled class="input input-small" type="text" value="#(user.login_name)"/></td>
+            </tr>
+            <tr>
+                <th>昵称</th>
+                <td><input name="nick_name" class="input input-small" type="text" value="#(user.nick_name)"/></td>
+            </tr>
+            <tr>
+                <th>邮箱</th>
+                <td><input name="email" class="input input-small" type="text" value="#(user.email)"/></td>
+            </tr>
+            <tr>
+                <th>电话</th>
+                <td><input name="mobile" class="input input-small" type="text" value="#(user.mobile)"/></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <button type="submit" onclick="saveInfo()"
+                            class="button submitBtn button-full btn-orange text-white">确认修改
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<script>
+    ;(function () {
+        let $el = $('.openedit');
+        $el.hDialog({resetForm: false, box: "#autoShow", title: '个人信息修改', height: 350});
+        window.saveInfo = () => {
+
+            let d = {};
+            let EmailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/; //邮件正则
+            let PhoneReg = /^1[34578]\d{9}$/; //手机正则
+            let t = $('#userinfoform').serializeArray();
+            $.each(t, function () {
+                d[this.name] = this.value;
+            });
+            if (d["nick_name"] === '') {
+                $.tooltip('昵称还没填呢...');
+            } else if (d["mobile"] === '') {
+                $.tooltip('手机还没填呢...');
+            } else if (!PhoneReg.test(d["mobile"])) {
+                console.log(d["mobile"])
+                $.tooltip('手机格式错误...');
+            } else if (d["email"] === '') {
+                $.tooltip('邮箱还没填哦...');
+            } else if (!EmailReg.test(d["email"])) {
+                $.tooltip('邮箱格式错误...');
+            } else {
+                $.post("/user/update", d, function (e) {
+                        location.href = "/";
+                        if (e == true) {
+                            $.tooltip('修改成功～', 2000, true, function () {
+                            });
+                        }
+                    }, 'json'
+                );
+                $("#autoShow").hide();
+                /**放到最后**/
+                $el.hDialog('close', {box: '#autoShow'});
+            }
+        }
+    })();
+</script>
