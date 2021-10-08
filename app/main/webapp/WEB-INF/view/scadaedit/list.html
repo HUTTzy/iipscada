@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Scada列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="../../../layuiadmin/style/admin.css" media="all">
+</head>
+<body>
+
+
+<style>
+    #LAY-component-grid-list .demo-list .layui-card {
+        height: 267px;
+        text-align: center;
+        border: 1px solid transparent;
+        transition: all 0.5s;
+    }
+
+    #LAY-component-grid-list .demo-list .layui-card:hover {
+        border: 1px solid #009F95;
+        -webkit-box-shadow: 0px 0px 1px 1px #009F95;
+        -moz-box-shadow: 0px 0px 1px 1px #009F95;
+        box-shadow: 0px 0px 1px 1px #009F95;
+    }
+
+    #LAY-component-grid-list .demo-list .layui-card > .scada-title {
+        width: 100%;
+        height: 60%;
+    }
+
+    #LAY-component-grid-list .demo-list .layui-card > .scada-title i {
+        display: block;
+        margin-bottom: 50px;
+        font-size: 50px;
+    }
+
+    #LAY-component-grid-list .demo-list .layui-card > .scada-btn {
+        line-height: 133px;
+    }
+
+    .newScada {
+        background: rgb(234, 246, 254) none repeat scroll 0% 0%;
+        cursor: pointer;
+        border: medium none;
+        display: flex;
+        flex-flow: column nowrap;
+        -moz-box-pack: center;
+        place-content: center;
+        font-family: MicrosoftYaHei;
+        font-size: 14px;
+        color: rgb(16, 140, 238);
+        line-height: 24px;
+    }
+
+    .newScada > span {
+        display: block;
+    }
+
+    .scada-box {
+        cursor: pointer;
+        display: inline-block;
+        width: 240px;
+        height: 260px;
+        border: 1px solid rgb(226, 229, 236);
+        flex: 0 0 auto;
+        transition: all 0.2s ease 0s;
+    }
+
+    .scada-img {
+        position: relative;
+        height: 150px;
+        flex: 0 0 auto;
+        background-position: center center;
+        background-size: 100% 100%;
+        background-image: url("../../../images/logo.png");
+        display: block;
+    }
+
+    .scada-detail {
+        padding: 10px;
+        height: 54px;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .scada-detail > span {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .scada-option {
+        line-height: 38px;
+        height: 38px;
+        font-size: 12px;
+        background-color: rgb(246, 247, 251);
+    }
+
+    .scada-option a:hover {
+        color: #00aaee;
+    }
+</style>
+
+<div class="layui-fluid" id="LAY-component-grid-list">
+    <div class="layui-row layui-col-space10 demo-list">
+        <div class="layui-col-sm4 layui-col-md3 layui-col-lg2">
+            <!-- 填充内容 -->
+            <a class="layui-card newScada scada-box" href="/server" target="_blank">
+                <span class="layui-icon layui-icon-add-circle"
+                      style="font-size: 60px; line-height:60px;margin-top: 80px"></span>
+                <span style="text-align: center;margin-top:10px">新建Scada</span>
+            </a>
+        </div>
+
+
+        #for(scada:scadalist)
+        <div class="layui-col-sm6 layui-col-md3 layui-col-lg2">
+            <div class="layui-card scada-box">
+                <a class="scada-img" href="/server?filename=#(scada.name)" target="_blank">
+                </a>
+                <div class="scada-detail" style="text-align: left;color: #0C0C0C">
+                    <span>
+                        #(scada.name)
+                    </span>
+                    <span style="color: rgb(153, 153, 153);">
+                         #(scada.time) ( #(scada.size))
+                    </span>
+                </div>
+                <div class="scada-option">
+                    <a data-filename="#(scada.name)" class="copyScada layui-col-sm4">
+                        <i class="layui-icon layui-icon-file"></i>
+                        复制
+                    </a>
+                    <a href="/server/runview?filename=#(scada.name)" target="_blank" class="layui-col-sm4"><i
+                            class="layui-icon layui-icon-play"></i>
+                        运行</a>
+                    <a data-filename="#(scada.name)" class="deleteScada layui-col-sm4"><i
+                            class="layui-icon layui-icon-delete"></i>删除</a>
+                </div>
+            </div>
+        </div>
+        #end
+    </div>
+</div>
+
+<script src="../../../layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../../../layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index'], function () {
+        var $ = layui.$
+        $(".deleteScada").on('click', function (e) {
+            var filename = $(e.target).attr("data-filename");
+            layer.confirm('确定删除吗？', function (index) {
+                $.post("/server/deletescada", {filename: filename}, function (e) {
+                        parent.layer.msg(e ? '已删除' : '删除失败');
+                        location.reload();
+                    }, 'json'
+                );
+                layer.close(index);
+            });
+        })
+
+        $(".copyScada").on('click', function (e) {
+            var filename = $(e.target).attr("data-filename");
+            $.post("/server/copyscada", {filename: filename}, function (e) {
+                    parent.layer.msg(e ? '复制成功' : '复制失败');
+                    location.reload();
+                }, 'json'
+            );
+        })
+    });
+</script>
+</body>
+</html>

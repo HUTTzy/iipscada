@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>
+    #(scada.title??'云智Scada')
+</title><link href="/scada/styles/runtime.css" rel="stylesheet" /><link href="/scada/styles/jquery.mloading.css" rel="stylesheet" />
+    <script type="text/javascript">
+        htconfig = {
+            Color: {
+                titleBackground: '#076186',
+                titleIconBackground: 'white',
+                headerBackground: '#DAECF4',
+                highlight: '#0F33B3'
+            },
+            Default: {
+                'zoomMax': 8,
+                'zoomMin': 0.25,
+                'zoomIncrement': 1.05,
+                'pinchZoomIncrement': 1.05
+            },
+            Style: {
+                'select.color': '#000000',
+                'select.width': 0,
+                'shape.background':'#404040'
+            },
+            dataRate: 1000,
+            animRate: 500,
+            autoSize: true,
+        };
+        var ie = false;
+        var userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf("msie") > -1 || userAgent.indexOf("rv:11") > -1) {
+            ie = true;
+        }
+        var layers = ['backgroundLayer', 'nodeLayer', 'textLayer'];
+        var filename = "", paramname = "", filejson = {};
+        var baiduMap = false;
+        var lonLatNode = true;
+        var sys_blink = false;
+        var dm = null;
+        var tagsDialog = null;
+        var playbackView = null;
+        var updateTimerID = -1;
+        var animTimerID = -1;
+        var iframe = false;
+        var querystring = Array();
+        var showPlayback = true;
+        var clipdata = "";
+    </script>
+    <script type='text/javascript'>
+        _rows=10000;
+        defbackground='white';
+        ismobile=false;
+        showPlayback=false;
+        querystring['filename']='#(scada.filename)';
+        filename='#(scada.filename)';
+        username = '';
+        userid = 0;
+        userlevel = 0;
+        userarea = 0;
+        htconfig.dataRate=#(scada.dataRate);
+        htconfig.animRate=#(scada.animRate);
+        htconfig.autoSize=#(scada.autoSize);
+        htconfig.Default.zoomMin=#(scada.zoomMin);
+        htconfig.Default.zoomMax=#(scada.zoomMax);
+        isPannable=#(scada.isPannable);
+        isMovable=#(scada.isMovable);
+        //layers=['backgroundLayer','nodeLayer','textLayer','l4','l5','l6','l7','l8'];
+        filejson=#(scada.json);
+    </script>
+
+    <script type="text/javascript" src="/scada/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/scada/lib/core/ht.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-cssanimation.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-form.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-dialog.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-palette.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-contextmenu.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-menu.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-panel.js"></script>
+    <script type="text/javascript" src="/scada/lib/controlv39.js"></script>
+    <script type="text/javascript" src="/scada/lib/usercontrol.js"></script>
+    <script type="text/javascript" src="/scada/lib/excontrol.js"></script>
+    <script type="text/javascript" src="/scada/lib/food.js"></script>
+    <script type="text/javascript" src="/scada/lib/ws.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-flow.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-dashflow.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-live.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-htmlnode.js"></script>
+    <script type="text/javascript" src="/scada/js/jquery.mloading.js"></script>
+    <script type="text/javascript" src="/scada/lib/scadav39.js"></script>
+    <script type="text/javascript" src="/scada/lib/runtimev39.js"></script>
+    <script type="text/javascript" src="/scada/lib/clipboard.js"></script>
+    <!--head global script-->
+</head>
+<body onload="init();">
+<script type="text/javascript">
+    clipboard_button = document.createElement('button');
+    clipboard_button.setAttribute('class', 'btn');
+    clipboard_button.setAttribute('data-clipboard-text', 'foo');
+    clipboard_button.style.display = "none";
+    document.body.appendChild(clipboard_button);
+    clipboard_button_event = {
+        target: clipboard_button,
+        currentTarget: clipboard_button
+    };
+    clipboard = new Clipboard('.btn', {
+        text: function () {
+            return clipdata;
+        }
+    });
+    clipboard.on('success', function (e) {
+    });
+    clipboard.on('error', function (e) {
+    });
+
+</script>
+</body>
+</html>

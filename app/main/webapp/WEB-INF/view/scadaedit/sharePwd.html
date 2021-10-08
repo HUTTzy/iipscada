@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>请输入分享密码</title>
+    <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">
+</head>
+<form id="tForm" method="post" action="" class="layui-hide">
+    <input autocomplete="false" name="scadaid" value="#(scada.id)">
+    <input autocomplete="false" name="pwd" value="">
+</form>
+<body>
+<script src="/layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../../../layuiadmin/'
+    }).extend({
+        index: 'lib/index'
+    }).use(['index', 'table', 'form', 'laydate', 'layer'], function () {
+            var table = layui.table, layer = layui.layer, i = layui.$, form = layui.form
+                , laydate = layui.laydate, tForm = i("#tForm");
+            let title = "";
+            if ('#(msg??)' !== '')
+                title += "<span style='color: #f30000;'>【#(msg??)】</span>";
+            title += "请输入分享密码!!!";
+            layer.prompt({
+                formType: 1,
+                closeBtn: 0,
+                title: title
+                , btn: ['确认']
+            }, function (value, index, elem) {
+                i("[name='pwd']").val(value);
+                tForm.submit();
+                return;
+            });
+        }
+    );
+
+</script>
+</body>
+
+</html>

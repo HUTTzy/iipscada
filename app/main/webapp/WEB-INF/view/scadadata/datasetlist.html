@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据集配置</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">
+    <style>
+        .datasetlist {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .datasetlist li {
+            border-bottom: 1px rgba(200, 200, 200, .5) solid;
+            padding: 5px 0px 3px 2px;
+            transition: all 0.3s;
+            /*9d9d9d*/
+        }
+
+        .datasetlist li:hover {
+            background: rgba(200, 200, 200, .5);
+        }
+
+        .datasetlist i {
+            display: inline-block;
+            font-size: 25px;
+            cursor: pointer;
+            float: right;
+            color: #2D93CA;
+            margin-right: 3px;
+        }
+
+        .datasetlist i:hover {
+            color: #f30000;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" style="padding-top: 10px">
+    <div class="layui-col-space15">
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    数据集列表
+                </div>
+                <div class="layui-card-body">
+                    <ul class="datasetlist">
+                        #for (dataset:datasets)
+                        <li>
+                            #(dataset.name)
+                            (#(dataset.dname))
+                            <i ds-id="#(dataset.id)" lay-tips="删除" lay-direction="1"
+                               class="deleteDataSet layui-icon layui-icon-delete"></i>
+                            <i ds-id="#(dataset.id)" lay-tips="编辑" lay-direction="1"
+                               class="editDataSet layui-icon layui-icon-edit"></i>
+                        </li>
+                        #end
+                    </ul>
+                    #if(datasets.size() == 0)
+                    <p style="text-align: center" class="layui-text-center">暂无数据集</p>
+                    #end
+                    <button id="addDataSet" class="layui-btn layui-btn-sm layui-btn-fluid">新建数据集</button>
+                </div>
+            </div>
+        </div>
+        <div id="editbox" class="layui-col-md8" style="display: none">
+            <div class="layui-card layui-form">
+                <div class="layui-card-header">数据集配置</div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" lay-filter="datasrource-form">
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label lay-tips="数据集的名称" class="layui-form-label">数据集名：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="name" lay-verify="required" placeholder="请输入数据集名称"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label class="layui-form-label" lay-tips="所用数据源">数据源：</label>
+                                <div class="layui-input-block">
+                                    <select lay-verify="required" id="datasourceid" name="datasourceid"
+                                            lay-filter="datasourceid"
+                                            autocomplete="off"
+                                            class="layui-input">
+                                        <option value="">请选择数据源</option>
+                                        #for(datascource:datascources)
+                                        <option value="#(datascource.id)">#(datascource.name)(#(datascource.dbtype))
+                                        </option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label lay-tips="数据集查询语句" class="layui-form-label">查询语句：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="query" placeholder="请输入查询语句"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label lay-tips="是否从服务器缓存查找字段" class="layui-form-label">优先缓存：</label>
+                                <div class="layui-input-block">
+                                    <input type="checkbox" checked name="fromcache" lay-skin="switch" lay-text="是|否">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button id="actionBtn" class="layui-btn" lay-submit=""
+                                        lay-filter="datasrource-form-save">保存
+                                </button>
+                                <button class="layui-btn" lay-submit="" lay-filter="datasrource-form-query">查询
+                                </button>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div id="fieldlist" class="layui-input-block">
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="../../../layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form'], function () {
+        var $ = layui.$
+            , form = layui.form;
+
+        var editId = 0;
+        var editbox = $("#editbox");
+        var actionBtn = $("#actionBtn");
+        var fieldlist = $("#fieldlist");
+
+        var dsStr = `{ #for(ds:datasets)"#(ds.id)":{"name":"#(ds.name)","query":"#(ds.query)","dname":"#(ds.dname)","datasourceid":"#(ds.datasourceid)","dbtype":"#(ds.dbtype)"},#end`;
+        dsStr = dsStr.substring(0, dsStr.length - 1) + "}";
+        var dsList = JSON.parse(dsStr);
+
+        var objToForm = function (obj) {
+            for (field in obj) {
+                editbox.find("[name='" + field + "']").val(obj[field]);
+            }
+            form.render('select');
+        }
+
+
+        $("#addDataSet").on('click', function () {
+            editId = 0;
+            editbox.show();
+            actionBtn.html("添加");
+            objToForm({
+                name: "",
+                datasourceid: "",
+                query: ""
+
+            });
+            fieldlist.html("");
+        });
+
+        $(".deleteDataSet").on('click', function (e) {
+            var dsid = $(e.target).attr("ds-id");
+            layer.confirm('确定删除数据集【<font color="red">' + dsList[dsid]["name"] + '</font> 】吗？', function (index) {
+                $.post("/data/deletedataset", {id: dsid}, function (e) {
+                        parent.layer.msg(e ? '删除成功' : '删除失败');
+                        location.reload();
+                    }, 'json'
+                );
+            });
+        });
+
+        $(".editDataSet").on('click', function (e) {
+            editId = $(e.target).attr("ds-id");
+            $("#editbox").show();
+            objToForm(dsList[editId]);
+            actionBtn.html("保存");
+            fieldlist.html("");
+        });
+
+        form.on('submit(datasrource-form-save)', function (data) {
+            var field = data.field;
+            field["id"] = editId;
+            $.post("/data/toggledataset", field, function (e) {
+                    parent.layer.msg(e ? '保存成功' : '保存失败');
+                    location.reload();
+                }, 'json'
+            );
+            return false;
+        });
+
+        form.on('submit(datasrource-form-query)', function (data) {
+            var field = data.field;
+            field["id"] = editId;
+            fieldlist.html("");
+            $.post("/data/queryfeild", field, function (e) {
+                    layer.msg(e);
+                }, 'json'
+            ).error(function (e) {
+                if (e.responseText == "") {
+                    layer.msg("获取数据失败");
+                    return;
+                }
+
+                if (e.responseText.indexOf("error") == -1) {
+                    var fields = e.responseText.split(",");
+                    var reStr = "";
+                    for (var field in fields) {
+                        reStr += (' <span class="layui-badge">' + fields[field] + '</span> ');
+                    }
+                    fieldlist.html(reStr);
+                } else {
+                    layer.msg(e.responseText);
+                }
+
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

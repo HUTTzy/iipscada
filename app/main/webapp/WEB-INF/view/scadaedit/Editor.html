@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="/scada/js/codemirror.css" rel="stylesheet"/>
+    <link href="/scada/styles/editor.css" rel="stylesheet"/>
+    <link href="/scada/styles/jquery.mloading.css" rel="stylesheet"/>
+    <title>组态环境</title>
+    <!--[if IE 9]>
+    <style>
+        .ht-widget-menu {
+            background: url(data:image/png;base64,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) repeat-x !important;
+            background-size: 100% 100% !important;
+        }
+
+        .ht-widget-dropdownmenu ul {
+            background-position: 1.6em 0 !important;
+        }
+
+        .ht-widget-dropdownmenu .menu-item.menu-item-hover {
+            background: rgba(193, 222, 255, 0.4) !important;
+        }
+
+        .ht-widget-dropdownmenu .separator {
+            margin-left: calc(1.6em + 1px) !important;
+            background: url(data:image/png;base64,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) repeat-x !important;
+        }
+    </style>
+    <![endif]-->
+    <script type="text/javascript">
+        htconfig = {
+            Color: {
+                label: '#000000',
+                highlight: '#0F33B3',// '#4183C4',
+                titleBackground: '#000000',
+                titleIconBackground: 'white',
+                headerBackground: '#F1F1F1'
+            },
+            Default: {
+                'zoomMax': 5,
+                'zoomMin': 0.25,
+                dialogButtonBackground: 'rgb(231, 76, 60)',
+                dialogButtonSelectBackground: 'rgb(196, 65, 51)',
+                dialogButtonLabelColor: '#fff'
+            },
+            Style: {
+                'select.color': '#000000',
+                'shape.background': '#404040'
+            }
+        };
+        var userarea = 0;
+        var lastPt = {x: 0, y: 0};
+        var imagedir = [];
+        var clipcontrols = [];
+        var HT2dEditor = {
+            fontFamilyList: ['Arial', 'sans-serif', 'Tahoma', 'Verdana', 'monospace', '华文中宋', '华文仿宋', '微软雅黑', '方正宋体', '楷体', '黑体'],
+            currScene: {
+                "id": 0,
+                "filename": "",
+                "title": "",
+                "info": "",
+                "headHtml": "",
+                "bodyHtml": "",
+                "dataRate": 1000,
+                "animRate": 500,
+                "autoSize": true,
+                "isPannable": true,
+                "isMovable": false,
+                "zoomMax": 5,
+                "zoomMin": 0.5,
+                "links": ""
+            }
+        };
+        var db = new Array();
+        var layers = ["backgroundLayer", "nodeLayer", "textLayer"];
+        var drawGrid = false;
+        var gridSpace = 8;
+        var snap = false;
+        var serverTags = null;
+        var layersView = {};
+        var clip = null;
+        var currentData = null;
+        var isPannable = false;
+        var viewstate = 0;
+        var isnew = true;
+        var pannabling = false;
+        var sys_blink = false;
+        var drawing = false;
+        var clipGroup = null;
+        var viewPicLib = false;
+        var openfile = "";
+        var cliploading = false;
+        var saving = false;
+        var tagReplaceDlg = null;
+        var playbackView = null;
+        var dm = null;
+        var autoSaveInteval = 60000;
+        var autoSaveTimer = -1;
+        var username = "";
+        var defbackground = "white";
+        var showAbout = true;
+        var clipdata = "";
+    </script>
+    <asp:Literal ID="layers" runat="server"></asp:Literal>
+    <script type="text/javascript" src="/scada/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/scada/js/codemirror.js"></script>
+    <script type="text/javascript" src="/scada/js/javascript.js"></script>
+    <script type="text/javascript" src="/scada/lib/core/ht.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-cssanimation.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-palette.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-xeditinteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-contextmenu.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-form.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-rulerframe.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-propertypane.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-edgetype.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-menu.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-dialog.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-live.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-historymanager.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-panel.js"></script>
+    <script type="text/javascript" src="/scada/lib/properties-configv39.js"></script>
+    <script type="text/javascript" src="/scada/lib/userproperties-config.js"></script>
+    <script type="text/javascript" src="/scada/lib/controlv39.js"></script>
+    <script type="text/javascript" src="/scada/lib/usercontrol.js"></script>
+    <script type="text/javascript" src="/scada/lib/excontrol.js"></script>
+    <script type="text/javascript" src="/scada/lib/food.js"></script>
+    <script type="text/javascript" src="/scada/lib/ws.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-flow.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-dashflow.js"></script>
+    <script type="text/javascript" src="/scada/lib/DNDInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/ParentInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/HostInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/IconInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/CreateShapeInteractorv35.js"></script>
+    <script type="text/javascript" src="/scada/lib/GeometryInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/plugin/ht-htmlnode.js"></script>
+    <script type="text/javascript" src="/scada/lib/ClipboardJSONSerializer.js"></script>
+    <script type="text/javascript" src="/scada/lib/NodeOperationInteractor.js"></script>
+    <script type="text/javascript" src="/scada/lib/palette-configv39.js"></script>
+    <script type="text/javascript" src="/scada/lib/SnapMoveInteractorv35.js"></script>
+    <script type="text/javascript" src="/scada/lib/GridPainter.js"></script>
+    <script type="text/javascript" src="/scada/js/jquery.mloading.js"></script>
+    <script type="text/javascript" src="/scada/lib/editorv39.js"></script>
+    <script type="text/javascript" src="/scada/lib/scadav39.js"></script>
+    <script type="text/javascript" src="/scada/lib/clipboard.js"></script>
+    <script>
+        ;(function () {
+            #if(filename != null && !filename.equals(""))
+            setTimeout(() => {
+                openFile("#(filename)");
+            }, 1000)
+            #end
+        })();
+    </script>
+    <script type="text/javascript">
+        function iead() {
+            $.post("server/idea.ashx", {}, function (data) {
+            }, "json");
+            saveLocal();
+        }
+
+    </script>
+</head>
+<body onload="init();">
+<script type="text/javascript">
+
+    clipboard_button = document.createElement('button');
+    clipboard_button.setAttribute('class', 'btn');
+    clipboard_button.setAttribute('data-clipboard-text', 'foo');
+    clipboard_button.style.display = "none";
+    document.body.appendChild(clipboard_button);
+    clipboard_button_event = {
+        target: clipboard_button,
+        currentTarget: clipboard_button
+    };
+
+    clipboard = new Clipboard('.btn', {
+        text: function () {
+            return clipdata;
+        }
+    });
+
+    clipboard.on('success', function (e) {
+        //console.log(e);
+    });
+
+    clipboard.on('error', function (e) {
+        //console.log(e);
+    });
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据源配置</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">
+    <style>
+        .datascourcelist {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .datascourcelist li {
+            border-bottom: 1px rgba(200, 200, 200, .5) solid;
+            padding: 5px 0px 3px 2px;
+            transition: all 0.3s;
+            /*9d9d9d*/
+        }
+
+        .datascourcelist li:hover {
+            background: rgba(200, 200, 200, .5);
+        }
+
+        .datascourcelist i {
+            display: inline-block;
+            font-size: 25px;
+            cursor: pointer;
+            float: right;
+            color: #2D93CA;
+            margin-right: 3px;
+        }
+
+        .datascourcelist i:hover {
+            color: #f30000;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-fluid" style="padding-top: 10px">
+    <div class="layui-col-space15">
+        <div class="layui-col-md4">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    数据源列表
+                </div>
+                <div class="layui-card-body">
+                    <ul class="datascourcelist">
+                        #for (ds:datascources)
+                        <li>
+                            #(ds.name)
+                            (#(ds.dbtype))
+                            <i ds-id="#(ds.id)" lay-tips="删除" lay-direction="1"
+                               class="deleteDataScource layui-icon layui-icon-delete"></i>
+                            <i ds-id="#(ds.id)" lay-tips="编辑" lay-direction="1"
+                               class="editDataScource layui-icon layui-icon-edit"></i>
+                        </li>
+                        #end
+                    </ul>
+                    #if(datascources.size() == 0)
+                    <p style="text-align: center" class="layui-text-center">暂无数据源</p>
+                    #end
+                    <button id="addDataScource" class="layui-btn layui-btn-sm layui-btn-fluid">新建数据源</button>
+                </div>
+            </div>
+        </div>
+        <div id="editbox" class="layui-col-md8" style="display: none">
+            <div class="layui-card layui-form">
+                <div class="layui-card-header">数据源配置</div>
+                <div class="layui-card-body">
+                    <form class="layui-form">
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label class="layui-form-label" lay-tips="数据源名称,可以任意">数据源名：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="name" lay-verify="required"
+                                           placeholder="请输入数据源名称"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-row layui-col-space10">
+                            <div class="layui-col-lg6">
+                                <label class="layui-form-label" lay-tips="数据库的类型">数据库：</label>
+                                <div class="layui-input-block">
+                                    <select id="dbtypeselect" name="dbtype" lay-filter="dbtypeselect" autocomplete="off"
+                                            class="layui-input">
+                                        #for (db:dbtypes.keySet())
+                                        <option dburl="#(dbtypes.get(db))" value="#(db)">#(db)</option>
+                                        #end
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label class="layui-form-label" lay-tips="数据库的远程访问地址">DB地址：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="url" lay-verify="required" placeholder="请输入数据库地址"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-col-lg6">
+                                <b id="urldesc" class="layui-form-label"
+                                   style="width: 100%;text-align: left"></b>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label lay-tips="数据库链接账号,选填" class="layui-form-label">DB账号：</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="username" placeholder="选填"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-row layui-col-space10 layui-form-item">
+                            <div class="layui-col-lg6">
+                                <label lay-tips="数据库链接口令,选填" class="layui-form-label">DB密码：</label>
+                                <div class="layui-input-block">
+                                    <input type="password" name="password" placeholder="选填"
+                                           autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button id="actionBtn" class="layui-btn" lay-submit="" lay-filter="datasrource-form">保存
+                                </button>
+                                <button class="layui-btn layui-btn-primary" lay-submit=""
+                                        lay-filter="datasrource-form-test">测试连接
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="../../../layuiadmin/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '../layuiadmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'form'], function () {
+        var $ = layui.$
+            , form = layui.form;
+        var dsStr = '{ #for(ds:datascources)"#(ds.id)":{"name":"#(ds.name)","dbtype":"#(ds.dbtype)","url":"#(ds.url)","username":"#(ds.username)","password":"#(ds.password)"},#end';
+        dsStr = dsStr.substring(0, dsStr.length - 1) + "}";
+        var dsList = JSON.parse(dsStr);
+        var editId = 0;
+
+        var urldesc = $("#urldesc");
+        var editbox = $("#editbox");
+        var actionBtn = $("#actionBtn");
+        var dbtypeselect = $("#dbtypeselect");
+
+        var showDbDesc = function () {
+            urldesc.html(dbtypeselect.find("[value='" + dbtypeselect.val() + "']").attr("dburl"));
+        }
+
+        var objToForm = function (obj) {
+            for (field in obj) {
+                editbox.find("[name='" + field + "']").val(obj[field]);
+            }
+            form.render('select');
+            showDbDesc();
+        }
+
+
+        $(".deleteDataScource").on('click', function (e) {
+            var dsid = $(e.target).attr("ds-id");
+            layer.confirm('确定删除【<font color="red">' + dsList[dsid]["name"] + '</font> 】吗？', function (index) {
+                $.post("/data/deletedatascource", {id: dsid}, function (e) {
+                        parent.layer.msg(e ? '删除成功' : '删除失败');
+                        location.reload();
+                    }, 'json'
+                );
+            });
+        });
+
+
+        $("#addDataScource").on('click', function () {
+            $("#editbox").show();
+            editId = 0;
+            objToForm({
+                name: "",
+                url: "",
+                username: "",
+                password: ""
+            });
+            actionBtn.html("添加");
+        });
+
+        $(".editDataScource").on('click', function (e) {
+            editId = $(e.target).attr("ds-id");
+            $("#editbox").show();
+            objToForm(dsList[editId]);
+            actionBtn.html("保存");
+        });
+
+
+        form.on('select(dbtypeselect)', function (data) {
+            //showDbDesc($(data.elem).find("[value='" + data.value + "']").attr("dburl"));
+            showDbDesc();
+        });
+
+        layui.form.on('submit(datasrource-form)', function (data) {
+            var field = data.field;
+            field["id"] = editId;
+            $.post("/data/toggledatascource", field, function (e) {
+                    parent.layer.msg(e ? '保存成功' : '保存失败');
+                    location.reload();
+                }, 'json'
+            );
+            return false;
+        });
+
+        layui.form.on('submit(datasrource-form-test)', function (data) {
+            var field = data.field; //获取提交的字段
+            $(data.elem).attr("disabled", true).addClass("layui-disabled");
+            $(data.elem).html("连接中...");
+            $.post("/data/datasrourcetest", field, function (e) {
+                    layer.msg(e);
+                    setTimeout(function () {
+                        $(data.elem).attr("disabled", false).removeClass("layui-disabled");
+                        $(data.elem).html("测试连接");
+                    }, 1000)
+
+                }, 'json'
+            ).error(function (e) {
+                layer.msg(e.responseText, {
+                    offset: 't',
+                    anim: 2
+                });
+                setTimeout(function () {
+                    $(data.elem).attr("disabled", false).removeClass("layui-disabled");
+                    $(data.elem).html("测试连接");
+                }, 1000)
+            });
+            return false;
+        });
+    });
+
+
+</script>
+</body>
+</html>
